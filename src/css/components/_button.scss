@@ -1,0 +1,34 @@
+.level-button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+  width: 200px;
+  button {
+    background-color: rgb(217, 254, 82);
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    width: 100%;
+    height: 40px;
+  }
+}
+
+.room-option-button-container {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 1vw;
+  width: 100%;
+  button {
+    background-color: rgb(217, 254, 82);
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    width: 200px;
+    height: 40px;
+  }
+}

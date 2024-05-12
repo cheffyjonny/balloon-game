@@ -1,10 +1,14 @@
 type TwoDimensionGrid = number[][]
 type TwoDimensionBooleanGrid = boolean[][]
-type Locations = [number, number][]
+type Balloon = {
+  x: number
+  y: number
+}
+type Balloons = Balloon[]
 
 export const createGame = (rows: number, cols: number) => {
   const gameGrid: TwoDimensionGrid = []
-  const balloonLocations: Locations = []
+  const balloons: Balloons = []
 
   // Create the gameGrid
   for (let i = 0; i < rows; i++) {
@@ -13,11 +17,13 @@ export const createGame = (rows: number, cols: number) => {
 
   // Create balloons and append to the gameGrid
   const fillGridWithBalloons = (): void => {
-    for (let x = 1; x < rows; x++) {
-      for (let y = 1; y < cols; y++) {
+    let balloonId = 0
+    for (let x = 0; x < rows; x++) {
+      for (let y = 0; y < cols; y++) {
         if (Math.random() < 0.5) {
           gameGrid[x][y] = 1
-          balloonLocations.push([x, y])
+          balloons.push({ x: x, y: y })
+          balloonId++
         }
       }
     }
@@ -28,7 +34,7 @@ export const createGame = (rows: number, cols: number) => {
     x: number,
     y: number,
     visited: TwoDimensionBooleanGrid,
-    points: Locations
+    balloonLocations: Balloons
   ) => {
     if (
       x < 0 ||
@@ -37,67 +43,100 @@ export const createGame = (rows: number, cols: number) => {
       y >= cols ||
       gameGrid[x][y] !== 1 ||
       visited[x][y]
-    )
+    ) {
       return
+    }
 
     visited[x][y] = true
-    points.push([x, y])
+    balloonLocations.push({ x: x, y: y })
 
-    findConnectedBalloons(x + 1, y, visited, points)
-    findConnectedBalloons(x - 1, y, visited, points)
-    findConnectedBalloons(x, y + 1, visited, points)
-    findConnectedBalloons(x, y - 1, visited, points)
+    findConnectedBalloons(x + 1, y, visited, balloonLocations)
+    findConnectedBalloons(x - 1, y, visited, balloonLocations)
+    findConnectedBalloons(x, y + 1, visited, balloonLocations)
+    findConnectedBalloons(x, y - 1, visited, balloonLocations)
   }
 
-  const findAllConnectedBalloons = (): Locations[] => {
+  const findAllConnectedBalloons = (): Balloons[] => {
     const visited: TwoDimensionBooleanGrid = []
-    const sequences: Locations[] = []
+    const sequences: Balloons[] = []
 
     for (let i = 0; i < rows; i++) {
       visited[i] = new Array(cols).fill(false)
     }
 
-    for (let i = 0; i < balloonLocations.length; i++) {
-      const [x, y] = balloonLocations[i]
+    for (let i = 0; i < balloons.length; i++) {
+      const { x, y } = balloons[i]
       if (!visited[x][y]) {
-        const points: Locations = []
-        findConnectedBalloons(x, y, visited, points)
-        sequences.push(points)
+        const balloonLocations: Balloons = []
+        findConnectedBalloons(x, y, visited, balloonLocations)
+        sequences.push(balloonLocations)
       }
     }
 
-    return sequences
+    return sequences.sort(function (a, b) {
+      return b.length - a.length
+    })
   }
 
   fillGridWithBalloons()
   const connectedSequences = findAllConnectedBalloons()
-  return { gameGrid, balloonLocations, connectedSequences }
+  console.log('gameGrid : ', gameGrid)
+  console.log('balloons : ', balloons)
+  console.log('connectedSequences : ', connectedSequences)
+
+  return { gameGrid, balloons, connectedSequences }
 }
 
 /** gameGrid example
- [
-  [ 0, 0, 0, 0, 0, 0 ],
-  [ 0, 0, 0, 0, 0, 0 ],
-  [ 0, 0, 0, 0, 0, 1 ],
-  [ 0, 1, 1, 0, 0, 0 ],
-  [ 0, 0, 0, 1, 1, 1 ],
-  [ 0, 0, 0, 1, 1, 0 ]
+[
+ [0, 0, 1, 1, 0] 
+ [0, 1, 1, 1, 1] 
+ [0, 0, 1, 1, 0] 
+ [1, 0, 1, 0, 0] 
+ [1, 1, 0, 1, 1]
 ]
 */
 
 /** balloonLocations example
 [
-  [ 2, 5 ], [ 3, 1 ],
-  [ 3, 2 ], [ 4, 3 ],
-  [ 4, 4 ], [ 4, 5 ],
-  [ 5, 3 ], [ 5, 4 ]
+  {x: 0, y: 2} first ROW from the top, Third COL from the left
+  {x: 0, y: 3}
+  {x: 1, y: 1}
+  {x: 1, y: 2}
+  {x: 1, y: 3}
+  {x: 1, y: 4}
+  {x: 2, y: 2}
+  {x: 2, y: 3}
+  {x: 3, y: 0}
+  {x: 3, y: 2}
+  {x: 4, y: 0}
+  {x: 4, y: 1}
+  {x: 4, y: 3}
+  {x: 4, y: 4}
 ]
 */
 
 /** connectedSequences example
 [
-  [ [ 2, 5 ] ],
-  [ [ 3, 1 ], [ 3, 2 ] ],
-  [ [ 4, 3 ], [ 5, 3 ], [ 5, 4 ], [ 4, 4 ], [ 4, 5 ] ]
+  [ 
+    {x: 0, y: 2},
+    {x: 1, y: 2},
+    {x: 2, y: 2},
+    {x: 3, y: 2},
+    {x: 2, y: 3},
+    {x: 1, y: 3},
+    {x: 0, y: 3},
+    {x: 1, y: 4},
+    {x: 1, y: 1} 
+  ],
+  [ 
+    {x: 3, y: 0},
+    {x: 4, y: 0},
+    {x: 4, y: 1}
+  ],
+  [ 
+    {x: 4, y: 3},
+    {x: 4, y: 4}
+  ]
 ]
  */

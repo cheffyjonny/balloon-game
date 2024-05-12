@@ -1,10 +1,10 @@
 import './css/main.scss'
-import { DemoPage } from './pages/DemoPage'
+import MainPage from './pages/MainPage'
 
 function App() {
   return (
     <>
-      <DemoPage />
+      <MainPage />
     </>
   )
 }
