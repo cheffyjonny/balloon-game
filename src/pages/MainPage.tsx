@@ -10,10 +10,19 @@ const MainPage = () => {
   const [isCustom, setIsCustom] = useState<boolean>(false)
 
   const handleOnChange = (option: IOption) => {
-    if (option.value !== 0) {
+    // Back to main
+    if (option.value === -1) {
+    }
+    // Save the game
+    else if (option.value === 1) {
+    }
+    // Enter the game
+    else if (option.value !== 0) {
       setLevel(option)
       setIsInGame(true)
-    } else {
+    }
+    // Go to customization
+    else {
       setIsCustom(true)
     }
   }

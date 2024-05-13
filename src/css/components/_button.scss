@@ -4,10 +4,10 @@
   gap: 2vh;
   width: 200px;
   button {
-    background-color: rgb(217, 254, 82);
+    background-color: var(--button-background-color);
     font-size: 1.2rem;
     font-weight: 600;
-    color: black;
+    color: var(--font-color);
     border: none;
     border-radius: 5px;
     width: 100%;
@@ -22,10 +22,10 @@
   gap: 1vw;
   width: 100%;
   button {
-    background-color: rgb(217, 254, 82);
+    background-color: var(--button-background-color);
     font-size: 1.2rem;
     font-weight: 600;
-    color: black;
+    color: var(--font-color);
     border: none;
     border-radius: 5px;
     width: 200px;

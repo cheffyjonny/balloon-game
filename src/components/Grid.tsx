@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef, useMemo, useId } from 'react'
+import React from 'react'
+import { useEffect, useState, useRef, useId } from 'react'
 import styled from 'styled-components'
 
 import { createGame } from '@/utils/balloonGame'
@@ -8,8 +9,10 @@ interface Props {
   cols: number
 }
 
-const Grid = ({ rows, cols }: Props) => {
+const Grid = React.memo(({ rows, cols }: Props) => {
   const id = useId()
+  const gridRef = useRef<HTMLDivElement>(null)
+  let { gameGrid, connectedSequences } = createGame(rows, cols)
   console.log(id)
 
   // Apply game information
@@ -25,45 +28,37 @@ const Grid = ({ rows, cols }: Props) => {
     }
   `
 
-  const { gameGrid, connectedSequences } = useMemo(() => {
-    return createGame(rows, cols)
-  }, [])
-
-  // As the cell is already created, handleClick() creates closure environment in the function.
-  // Therefore its using a ref to communicate with handleClick() in the cell().
-  const sequencesToPlay = useRef(connectedSequences)
   const [isGaveOver, setIsGaveOver] = useState(false)
   const [hasWon, setHasWon] = useState(false)
 
-  console.log('init : ', sequencesToPlay.current)
-  const gridRef = useRef<HTMLDivElement>(null)
+  const handleClick = (balloon: { x: number; y: number }) => {
+    checkWin(balloon)
+  }
 
   const checkWin = (balloon: { x: number; y: number }) => {
-    for (let i = 0; i < sequencesToPlay.current.length; i++) {
-      const currentArray = sequencesToPlay.current[i]
+    for (let i = 0; i < connectedSequences.length; i++) {
+      const currentArray = connectedSequences[i]
 
       for (let j = 0; j < currentArray.length; j++) {
         if (
-          currentArray.length === sequencesToPlay.current[0].length &&
+          currentArray.length === connectedSequences[0].length &&
           currentArray[j].x === balloon.x &&
           currentArray[j].y === balloon.y
         ) {
-          console.log('currentArray : ', currentArray)
           currentArray.forEach((element) => {
             document
               .getElementById(`${element.x},${element.y}`)
               ?.classList.remove('balloon')
           })
 
-          let newSequencesToPlay = [...sequencesToPlay.current]
+          let newSequencesToPlay = [...connectedSequences]
           newSequencesToPlay.splice(i, 1)
-          sequencesToPlay.current = newSequencesToPlay
+          connectedSequences = newSequencesToPlay
 
-          if (sequencesToPlay.current.length === 0) {
+          if (connectedSequences.length === 0) {
             setHasWon(true)
           }
 
-          console.log('next round will be : ', sequencesToPlay.current)
           return
         }
       }
@@ -73,18 +68,12 @@ const Grid = ({ rows, cols }: Props) => {
     return
   }
 
-  const handleClick = (balloon: { x: number; y: number }) => {
-    checkWin(balloon)
-  }
-
   useEffect(() => {
     const gridContainer = gridRef.current
 
     // Define the size of the DOM grid
     const numRows = gameGrid.length
     const numCols = gameGrid[0].length
-    console.log('numRows : ', numRows)
-    console.log('numCols : ', numCols)
 
     // Create the DOM grid
     const grid = document.createElement('div')
@@ -112,7 +101,7 @@ const Grid = ({ rows, cols }: Props) => {
     return () => {
       gridContainer?.removeChild(grid)
     }
-  }, [])
+  }, [rows, cols])
 
   return (
     <>
@@ -127,6 +116,6 @@ const Grid = ({ rows, cols }: Props) => {
       </div>
     </>
   )
-}
+})
 
 export default Grid

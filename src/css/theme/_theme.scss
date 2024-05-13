@@ -1,0 +1,13 @@
+@use 'colors' as *;
+
+html[data-theme='dark'] {
+  --background-color: #{$neutral-900};
+  --font-color: #{$black-1};
+  --button-background-color: #{$primary};
+}
+
+html[data-theme='light'] {
+  --background-color: #{$neutral-500};
+  --font-color: #{$primary};
+  --button-background-color: #{$neutral-900};
+}
