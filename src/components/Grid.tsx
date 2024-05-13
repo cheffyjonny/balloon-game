@@ -82,9 +82,12 @@ const Grid = React.memo(
             currentArray[j].y === balloon.y
           ) {
             currentArray.forEach((element) => {
-              document
-                .getElementById(`${element.x},${element.y}`)
-                ?.classList.remove('balloon')
+              const cellElement = document.getElementById(
+                `${element.x},${element.y}`
+              )
+
+              cellElement?.classList.remove('balloon')
+              // Todo: 이미 클릭한 풍선 재선택시, 이벤트 리스너 발동, 삭제 필요.
             })
 
             // Update connectedSequences
