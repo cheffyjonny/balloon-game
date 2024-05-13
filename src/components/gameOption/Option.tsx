@@ -1,15 +1,16 @@
 export interface IOption {
   title: string
-  value: number
+  value: string // select, custom, back, start
+  rows?: number
+  cols?: number
 }
-
 interface Props {
   list: IOption[]
   className: string
   handleClick: (option: IOption) => void
 }
 
-const Button = ({ list, className, handleClick }: Props) => {
+const Option = ({ list, className, handleClick }: Props) => {
   return (
     <div className={className}>
       {list.map((item, index) => (
@@ -24,4 +25,4 @@ const Button = ({ list, className, handleClick }: Props) => {
   )
 }
 
-export default Button
+export default Option

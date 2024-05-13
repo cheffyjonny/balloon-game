@@ -12,7 +12,7 @@ interface ThemeProviderProps {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-export const ThemeProvider = ({ children }: ThemeProviderProps) => {
+export const UserThemeProvider = ({ children }: ThemeProviderProps) => {
   const [theme, setTheme] = useState<Theme>('dark')
 
   const toggleTheme = () => {

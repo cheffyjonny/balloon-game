@@ -80,9 +80,6 @@ export const createGame = (rows: number, cols: number) => {
 
   fillGridWithBalloons()
   const connectedSequences = findAllConnectedBalloons()
-  console.log('gameGrid : ', gameGrid)
-  console.log('balloons : ', balloons)
-  console.log('connectedSequences : ', connectedSequences)
 
   return { gameGrid, balloons, connectedSequences }
 }

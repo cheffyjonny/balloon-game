@@ -4,10 +4,18 @@ html[data-theme='dark'] {
   --background-color: #{$neutral-900};
   --font-color: #{$black-1};
   --button-background-color: #{$primary};
+  --text-input-border-color: #{$primary};
+  --input-placeholder-color: #{$primary};
+  --input-color: #{$white-1};
+  --notification-color: #{$white-1};
 }
 
 html[data-theme='light'] {
   --background-color: #{$neutral-500};
   --font-color: #{$primary};
   --button-background-color: #{$neutral-900};
+  --text-input-border-color: #{$neutral-900};
+  --input-placeholder-color: #{$neutral-900};
+  --input-color: #{$neutral-900};
+  --notification-color: #{$black-1};
 }
