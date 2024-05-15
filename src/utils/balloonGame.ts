@@ -1,10 +1,10 @@
-type TwoDimensionGrid = number[][]
-type TwoDimensionBooleanGrid = boolean[][]
-type Balloon = {
+export type TwoDimensionGrid = number[][]
+export type TwoDimensionBooleanGrid = boolean[][]
+interface IBalloon {
   x: number
   y: number
 }
-type Balloons = Balloon[]
+export type Balloons = IBalloon[]
 
 export const createGame = (rows: number, cols: number) => {
   const gameGrid: TwoDimensionGrid = []

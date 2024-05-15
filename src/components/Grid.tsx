@@ -11,7 +11,7 @@ import styled from 'styled-components'
 import { addGame, deleteGame } from '@/server/firebase'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import { createGame } from '@/utils/balloonGame'
+import { createGame, Balloons, TwoDimensionGrid } from '@/utils/balloonGame'
 
 interface Props {
   rows: number
@@ -26,8 +26,13 @@ const id = 'absolute-id'
 
 const Grid = React.memo(
   forwardRef<GridRef, Props>(({ rows, cols, onFinishGame }: Props, ref) => {
-    let { gameGrid, connectedSequences } = createGame(rows, cols)
     const gridRef = useRef<HTMLDivElement>(null)
+
+    const { gameGrid, connectedSequences } = createGame(rows, cols)
+
+    const [game, setGame] = useState<TwoDimensionGrid>(gameGrid)
+    const [gameSequences, setGameSequences] =
+      useState<Balloons[]>(connectedSequences)
     const [hasWon, setHasWon] = useState(false)
     const [isGaveOver, setIsGaveOver] = useState(false)
 
@@ -67,36 +72,40 @@ const Grid = React.memo(
     }
 
     const handleClick = (balloon: { x: number; y: number }) => {
-      checkWin(balloon)
+      if (!isGaveOver) {
+        // Stays in the game, so then the player can analyze the game
+        checkWin2(balloon)
+      }
     }
 
-    const checkWin = (balloon: { x: number; y: number }) => {
-      for (let i = 0; i < connectedSequences.length; i++) {
-        const currentArray = connectedSequences[i]
+    const checkWin2 = (balloon: { x: number; y: number }) => {
+      let updatedGame = [...game]
+      let updatedGameSequences = [...gameSequences]
+
+      for (let i = 0; i < gameSequences.length; i++) {
+        const currentArray = gameSequences[i]
 
         // Remove balloons from the game.
         for (let j = 0; j < currentArray.length; j++) {
           if (
-            currentArray.length === connectedSequences[0].length &&
+            currentArray.length === gameSequences[0].length &&
             currentArray[j].x === balloon.x &&
             currentArray[j].y === balloon.y
           ) {
-            currentArray.forEach((element) => {
-              const cellElement = document.getElementById(
-                `${element.x},${element.y}`
-              )
-
-              cellElement?.classList.remove('balloon')
-              // Todo: 이미 클릭한 풍선 재선택시, 이벤트 리스너 발동, 삭제 필요.
+            currentArray.forEach((cell) => {
+              updatedGame[cell.x][cell.y] = 0
             })
 
-            // Update connectedSequences
-            connectedSequences = connectedSequences.filter(
+            updatedGameSequences = updatedGameSequences.filter(
               (_, index) => index !== i
             )
 
+            // Update
+            setGame(updatedGame)
+            setGameSequences(updatedGameSequences)
+
             // WINNER
-            if (connectedSequences.length === 0) {
+            if (updatedGameSequences.length === 0) {
               setHasWon(true)
               onFinishGame(true)
             }
@@ -111,47 +120,28 @@ const Grid = React.memo(
       return
     }
 
-    useEffect(() => {
-      const gridContainer = gridRef.current
-
-      // Define the size of the DOM grid
-      const numRows = gameGrid.length
-      const numCols = gameGrid[0].length
-
-      // Create the DOM grid
-      const grid = document.createElement('div')
-      grid.className = 'grid'
-
-      // Create cells and append to the DOM grid
-      for (let x = 0; x < numRows; x++) {
-        for (let y = 0; y < numCols; y++) {
-          const cell = document.createElement('div')
-          cell.classList.add('cell')
-
-          if (gameGrid[x][y] === 1) {
-            cell.id = `${x},${y}`
-            cell.classList.add('balloon')
-            cell.onclick = () => handleClick({ x: x, y: y })
-          }
-
-          grid.appendChild(cell)
-        }
-      }
-
-      // Append the grid to the container
-      gridContainer?.appendChild(grid)
-
-      return () => {
-        gridContainer?.removeChild(grid)
-      }
-    }, [rows, cols])
-
     return (
       <>
-        <StyledGrid
-          ref={gridRef}
-          id='grid'
-        ></StyledGrid>
+        {!hasWon && (
+          <StyledGrid>
+            <div
+              className='grid'
+              ref={gridRef}
+            >
+              {game.map((rows, rowIndex) =>
+                rows.map((cell, colIndex) => (
+                  <div
+                    key={`${rowIndex}, ${colIndex}`}
+                    className={cell === 1 ? 'cell balloon' : 'cell '}
+                    onClick={() => {
+                      if (cell === 1) handleClick({ x: rowIndex, y: colIndex })
+                    }}
+                  ></div>
+                ))
+              )}
+            </div>
+          </StyledGrid>
+        )}
 
         <div className='game-notification'>
           {hasWon && <h1>Winner Winner Chicken Dinner</h1>}
