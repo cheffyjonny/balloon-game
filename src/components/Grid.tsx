@@ -1,8 +1,14 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react'
+import React, {
+  useState,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+  useMemo,
+  ReactElement,
+} from 'react'
 
-// Todo : API 적용
 import { addGame, deleteGame, getGame } from '@/server/firebase'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 import { createGame, Balloons, TwoDimensionGrid } from '@/utils/balloonGame'
 
@@ -15,59 +21,71 @@ import DialogTitle from '@mui/material/DialogTitle'
 import Slide from '@mui/material/Slide'
 import { TransitionProps } from '@mui/material/transitions'
 
+import 'react-toastify/dist/ReactToastify.css'
+import { ToastContainer, toast } from 'react-toastify'
+
+export interface GridRef {
+  saveGame: () => void
+}
+
 interface Props {
   rows: number
   cols: number
   onFinishGame: (val: boolean) => void
 }
-export type GridRef = {
-  saveGame: () => void
-}
 
 const id = 'absolute-id'
+
+const Transition = forwardRef<
+  unknown,
+  TransitionProps & { children: ReactElement }
+>(
+  (
+    props: TransitionProps & {
+      children: ReactElement
+    },
+    ref
+  ) => {
+    return (
+      <Slide
+        direction='up'
+        ref={ref}
+        {...props}
+      />
+    )
+  }
+)
 
 const Grid = React.memo(
   forwardRef<GridRef, Props>(({ rows, cols, onFinishGame }: Props, ref) => {
     const gridRef = useRef<HTMLDivElement>(null)
 
-    const { gameGrid, connectedSequences } = createGame(rows, cols)
+    const { gameGrid, connectedSequences } = useMemo(
+      () => createGame(rows, cols),
+      [rows, cols]
+    )
 
     const [game, setGame] = useState<TwoDimensionGrid>(gameGrid)
     const [gameSequences, setGameSequences] =
       useState<Balloons[]>(connectedSequences)
     const [hasWon, setHasWon] = useState(false)
     const [isGaveOver, setIsGaveOver] = useState(false)
+    const [open, setOpen] = React.useState(false)
 
-    // Todo : 게임 불러오기 중 오류 발생. 수정 필요
     useImperativeHandle(ref, () => ({
       saveGame: () => {
         handleSaveGame()
       },
     }))
 
-    // Todo : 게임 저장, 이전 기록 있을 시 삭제 후 새로운 게임 저장
-    const handleSaveGame = async () => {
-      const data = {
-        id: id,
-        gameGrid: JSON.stringify(gameGrid),
-        connectedSequences: JSON.stringify(connectedSequences),
-      }
-      try {
-        console.log('Saved : ', data)
-        addGame(data)
-      } catch (e) {
-        console.log(e)
-      }
-    }
-
-    const handleClick = (balloon: { x: number; y: number }) => {
+    const handleClickBalloon = (balloon: { x: number; y: number }) => {
       if (!isGaveOver) {
         // Stays in the game, so then the player can analyze the game
-        checkWin2(balloon)
+        checkWin(balloon)
       }
     }
 
-    const checkWin2 = (balloon: { x: number; y: number }) => {
+    const checkWin = (balloon: { x: number; y: number }) => {
       let updatedGame = [...game]
       let updatedGameSequences = [...gameSequences]
 
@@ -109,25 +127,81 @@ const Grid = React.memo(
       return
     }
 
-    const [open, setOpen] = React.useState(false)
+    // APIs
     const {
       isLoading,
       isError,
       data: prevGame,
-      error,
     } = useQuery({
       queryKey: ['game'],
       queryFn: () =>
         getGame().then((res) => {
-          if (res) setOpen(true)
+          if (res.length > 0) setOpen(true)
           return res
         }),
     })
+    const mutationDeleteGame = useMutation({
+      mutationFn: deleteGame,
+      onSuccess: () => {
+        setOpen(false)
+      },
+      onError: (error) => {
+        toast.error(`서버 오류 ${error}🙁`)
+      },
+    })
+    const mutationSaveGame = useMutation({
+      mutationFn: addGame,
+      onSuccess: () => {
+        toast.success('게임 저장 완료 하였습니다 😊')
+      },
+      onError: (error) => {
+        toast.error(`서버 오류 ${error}🙁`)
+      },
+    })
 
-    if (isLoading) return <span>Loading...</span>
+    if (isLoading) {
+      return <span className='api-notification'>Loading...</span>
+    }
+    if (isError) {
+      return <span className='api-notification'>Some went wrong...</span>
+    }
 
-    const handleClose = () => {
+    const handleRenew = () => {
+      // Delete the prev game
+      if (prevGame && prevGame?.length > 0) {
+        mutationDeleteGame.mutate(prevGame[0].id)
+      }
+      toast.success('새로운 게임을 시작하였습니다 😊')
+    }
+
+    const handleContinue = () => {
+      if (prevGame && prevGame?.length > 0) {
+        setGame(prevGame[0]?.gameGrid)
+        setGameSequences(prevGame[0]?.connectedSequences)
+      }
+      toast.success('게임 불러오기를 하였습니다 😊')
       setOpen(false)
+    }
+
+    // Save the game
+    const handleSaveGame = async () => {
+      const dto = {
+        id: id,
+        gameGrid: JSON.stringify(game),
+        connectedSequences: JSON.stringify(gameSequences),
+      }
+
+      try {
+        // Delete the old game
+        if (prevGame && prevGame?.length > 0) {
+          mutationDeleteGame.mutate(prevGame[0].id)
+        }
+        // Save the new game
+        mutationSaveGame.mutate(dto)
+      } catch (e) {
+        console.log(e)
+      } finally {
+      }
     }
 
     return (
@@ -136,17 +210,18 @@ const Grid = React.memo(
           open={open}
           TransitionComponent={Transition}
           keepMounted
-          onClose={handleClose}
+          onClose={() => setOpen(false)}
         >
           <DialogTitle>게임 이어하기</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              이전에 진행 중이던 게임이 있습니다. 계속 진행하시겠습니까?
+              이전에 진행 중이던 게임이 있습니다. 계속 진행하시겠습니까? <br />
+              새로운 게임을 시작하면 이전 게임 기록이 삭제됩니다.
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>새로하기</Button>
-            <Button onClick={handleClose}>이어하기</Button>
+            <Button onClick={handleRenew}>새로하기</Button>
+            <Button onClick={handleContinue}>이어하기</Button>
           </DialogActions>
         </Dialog>
 
@@ -167,7 +242,8 @@ const Grid = React.memo(
                   key={`${rowIndex}, ${colIndex}`}
                   className={cell === 1 ? 'cell balloon' : 'cell '}
                   onClick={() => {
-                    if (cell === 1) handleClick({ x: rowIndex, y: colIndex })
+                    if (cell === 1)
+                      handleClickBalloon({ x: rowIndex, y: colIndex })
                   }}
                 ></div>
               ))
@@ -179,24 +255,21 @@ const Grid = React.memo(
           {hasWon && <h1>Winner Winner Chicken Dinner</h1>}
           {isGaveOver && <h1>GAME OVER</h1>}
         </div>
+
+        <ToastContainer
+          position='bottom-right'
+          autoClose={1700}
+          hideProgressBar={true}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme='light'
+        />
       </>
     )
   })
 )
-
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>
-  },
-  ref: React.Ref<unknown>
-) {
-  return (
-    <Slide
-      direction='up'
-      ref={ref}
-      {...props}
-    />
-  )
-})
-
 export default Grid

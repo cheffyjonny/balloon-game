@@ -10,6 +10,7 @@ html[data-theme='dark'] {
   --input-placeholder-color: #{$primary};
   --input-color: #{$white-1};
   --notification-color: #{$white-1};
+  --api-notification: #{$primary};
 }
 
 html[data-theme='light'] {
@@ -22,4 +23,5 @@ html[data-theme='light'] {
   --input-placeholder-color: #{$neutral-900};
   --input-color: #{$neutral-900};
   --notification-color: #{$black-1};
+  --api-notification: #{$black-1};
 }

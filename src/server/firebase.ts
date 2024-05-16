@@ -26,11 +26,13 @@ const fireStoreRef = collection(fireStore, 'game')
 export const getGame = async () => {
   const querySnapshot = await getDocs(fireStoreRef)
 
-  const game = querySnapshot.docs.map((doc) => ({
-    id: doc.data().id,
-    gameGrid: JSON.parse(doc.data().gameGrid),
-    connectedSequences: JSON.parse(doc.data().connectedSequences),
-  }))
+  const game = querySnapshot.docs.map((doc) => {
+    return {
+      id: doc.id,
+      gameGrid: JSON.parse(doc.data().gameGrid),
+      connectedSequences: JSON.parse(doc.data().connectedSequences),
+    }
+  })
 
   return game
 }
@@ -44,5 +46,6 @@ export const addGame = async (game: Game) => {
 }
 
 export const deleteGame = async (id: string) => {
+  console.log(id)
   await deleteDoc(doc(fireStore, 'game', id))
 }

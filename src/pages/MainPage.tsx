@@ -24,8 +24,8 @@ const MainPage = () => {
     // Save the game
     else if (option.value === 'save') {
       ref.current?.saveGame()
-      setLevel(undefined)
-      setIsInGame(false)
+      //   setLevel(undefined)
+      //   setIsInGame(false)
     }
     // Enter the game
     else if (option.value === 'select') {
@@ -54,9 +54,6 @@ const MainPage = () => {
           level.cols &&
           level.cols !== 0 &&
           isInGame && (
-            // Todo: import { getGame} from '@/server/firebase'
-            // 게임 레벨 설정시, 이전 게임 불러오기
-            // Grid 내에서 useImperativeHandle 적용으로 인하여, 게임 불러오기 중 오류 발생. 수정 필요.
             <>
               <Grid
                 ref={ref}
