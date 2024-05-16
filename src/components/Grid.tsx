@@ -166,21 +166,11 @@ const Grid = React.memo(
       return <span className='api-notification'>Some went wrong...</span>
     }
 
-    const handleRenew = () => {
-      // Delete the prev game
+    // Delete the game
+    const handleDeleteGame = () => {
       if (prevGame && prevGame?.length > 0) {
         mutationDeleteGame.mutate(prevGame[0].id)
       }
-      toast.success('새로운 게임을 시작하였습니다 😊')
-    }
-
-    const handleContinue = () => {
-      if (prevGame && prevGame?.length > 0) {
-        setGame(prevGame[0]?.gameGrid)
-        setGameSequences(prevGame[0]?.connectedSequences)
-      }
-      toast.success('게임 불러오기를 하였습니다 😊')
-      setOpen(false)
     }
 
     // Save the game
@@ -193,9 +183,7 @@ const Grid = React.memo(
 
       try {
         // Delete the old game
-        if (prevGame && prevGame?.length > 0) {
-          mutationDeleteGame.mutate(prevGame[0].id)
-        }
+        handleDeleteGame()
         // Save the new game
         mutationSaveGame.mutate(dto)
       } catch (e) {
@@ -204,6 +192,20 @@ const Grid = React.memo(
       }
     }
 
+    const handleRenew = () => {
+      // Delete the prev game
+      handleDeleteGame()
+      toast.success('새로운 게임을 시작하였습니다 😊')
+    }
+
+    const handleContinue = () => {
+      if (prevGame && prevGame?.length > 0) {
+        setGame(prevGame[0]?.gameGrid)
+        setGameSequences(prevGame[0]?.connectedSequences)
+      }
+      toast.success('게임 불러오기를 하였습니다 😊')
+      setOpen(false)
+    }
     return (
       <>
         <Dialog
