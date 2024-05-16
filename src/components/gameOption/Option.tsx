@@ -1,3 +1,5 @@
+import Button from '@mui/material/Button'
+
 export interface IOption {
   title: string
   value: string // select, custom, back, start
@@ -14,12 +16,12 @@ const Option = ({ list, className, handleClick }: Props) => {
   return (
     <div className={className}>
       {list.map((item, index) => (
-        <button
+        <Button
           key={index}
           onClick={() => handleClick(item)}
         >
           {item.title}
-        </button>
+        </Button>
       ))}
     </div>
   )

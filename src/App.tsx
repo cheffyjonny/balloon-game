@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { DarkModeSwitch } from 'react-toggle-dark-mode'
 
 import './css/main.scss'
-import MainPage from './pages/MainPage'
+import MainPage from 'pages/MainPage'
 import { useThemeProvider } from './context/UserThemeProvider'
 
 function App() {

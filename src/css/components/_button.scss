@@ -4,13 +4,8 @@
   gap: 2vh;
   width: 200px;
   button {
-    cursor: pointer;
-    background-color: var(--button-background-color);
     font-size: 1.2rem;
     font-weight: 600;
-    color: var(--font-color);
-    border: none;
-    border-radius: 5px;
     width: 100%;
     height: 40px;
   }
@@ -23,13 +18,8 @@
   gap: 1vw;
   width: 100%;
   button {
-    cursor: pointer;
-    background-color: var(--button-background-color);
     font-size: 1.2rem;
     font-weight: 600;
-    color: var(--font-color);
-    border: none;
-    border-radius: 5px;
     width: 200px;
     height: 40px;
   }

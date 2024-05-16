@@ -61,5 +61,23 @@ export const customTheme = createTheme({
         },
       },
     },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          color: 'var(--button-font-color)',
+          backgroundColor: 'var( --button-background-color)',
+          '&:hover': {
+            backgroundColor: 'var(--white)',
+          },
+        },
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: 'var(--white)',
+        },
+      },
+    },
   },
 })

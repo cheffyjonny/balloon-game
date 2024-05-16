@@ -1,10 +1,19 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react'
 
 // Todo : API 적용
-import { addGame, deleteGame } from '@/server/firebase'
+import { addGame, deleteGame, getGame } from '@/server/firebase'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { createGame, Balloons, TwoDimensionGrid } from '@/utils/balloonGame'
+
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
+import Slide from '@mui/material/Slide'
+import { TransitionProps } from '@mui/material/transitions'
 
 interface Props {
   rows: number
@@ -45,7 +54,7 @@ const Grid = React.memo(
       }
       try {
         console.log('Saved : ', data)
-        // addGame(data)
+        addGame(data)
       } catch (e) {
         console.log(e)
       }
@@ -100,8 +109,47 @@ const Grid = React.memo(
       return
     }
 
+    const [open, setOpen] = React.useState(false)
+    const {
+      isLoading,
+      isError,
+      data: prevGame,
+      error,
+    } = useQuery({
+      queryKey: ['game'],
+      queryFn: () =>
+        getGame().then((res) => {
+          if (res) setOpen(true)
+          return res
+        }),
+    })
+
+    if (isLoading) return <span>Loading...</span>
+
+    const handleClose = () => {
+      setOpen(false)
+    }
+
     return (
       <>
+        <Dialog
+          open={open}
+          TransitionComponent={Transition}
+          keepMounted
+          onClose={handleClose}
+        >
+          <DialogTitle>게임 이어하기</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              이전에 진행 중이던 게임이 있습니다. 계속 진행하시겠습니까?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>새로하기</Button>
+            <Button onClick={handleClose}>이어하기</Button>
+          </DialogActions>
+        </Dialog>
+
         {!hasWon && (
           <div
             className='grid'
@@ -135,5 +183,20 @@ const Grid = React.memo(
     )
   })
 )
+
+const Transition = React.forwardRef(function Transition(
+  props: TransitionProps & {
+    children: React.ReactElement<any, any>
+  },
+  ref: React.Ref<unknown>
+) {
+  return (
+    <Slide
+      direction='up'
+      ref={ref}
+      {...props}
+    />
+  )
+})
 
 export default Grid
