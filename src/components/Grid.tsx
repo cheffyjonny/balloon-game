@@ -1,11 +1,4 @@
-import React, {
-  useEffect,
-  useState,
-  useRef,
-  forwardRef,
-  useImperativeHandle,
-} from 'react'
-import styled from 'styled-components'
+import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react'
 
 // Todo : API 적용
 import { addGame, deleteGame } from '@/server/firebase'
@@ -35,19 +28,6 @@ const Grid = React.memo(
       useState<Balloons[]>(connectedSequences)
     const [hasWon, setHasWon] = useState(false)
     const [isGaveOver, setIsGaveOver] = useState(false)
-
-    // Apply game information for styling
-    const StyledGrid = styled.div`
-      .grid {
-        width: ${cols * 50}px;
-        height: ${rows * 50}px;
-        grid-template-columns: repeat(${cols}, 50px);
-        .cell {
-          width: 50px;
-          height: 50px;
-        }
-      }
-    `
 
     // Todo : 게임 불러오기 중 오류 발생. 수정 필요
     useImperativeHandle(ref, () => ({
@@ -123,24 +103,28 @@ const Grid = React.memo(
     return (
       <>
         {!hasWon && (
-          <StyledGrid>
-            <div
-              className='grid'
-              ref={gridRef}
-            >
-              {game.map((rows, rowIndex) =>
-                rows.map((cell, colIndex) => (
-                  <div
-                    key={`${rowIndex}, ${colIndex}`}
-                    className={cell === 1 ? 'cell balloon' : 'cell '}
-                    onClick={() => {
-                      if (cell === 1) handleClick({ x: rowIndex, y: colIndex })
-                    }}
-                  ></div>
-                ))
-              )}
-            </div>
-          </StyledGrid>
+          <div
+            className='grid'
+            // Apply game information for styling
+            style={{
+              width: `${cols * 50}px`,
+              height: ` ${rows * 50}px`,
+              gridTemplateColumns: `repeat(${cols}, 50px)`,
+            }}
+            ref={gridRef}
+          >
+            {game.map((rows, rowIndex) =>
+              rows.map((cell, colIndex) => (
+                <div
+                  key={`${rowIndex}, ${colIndex}`}
+                  className={cell === 1 ? 'cell balloon' : 'cell '}
+                  onClick={() => {
+                    if (cell === 1) handleClick({ x: rowIndex, y: colIndex })
+                  }}
+                ></div>
+              ))
+            )}
+          </div>
         )}
 
         <div className='game-notification'>
