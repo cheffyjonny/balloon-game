@@ -4,9 +4,6 @@ import GameOption from '@/components/gameOption/GameOption'
 import Grid, { GridRef } from '@/components/Grid'
 import type { IOption } from '@/components/gameOption/Option'
 
-import { getGame } from '@/server/firebase'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-
 const MainPage = () => {
   const ref = useRef<GridRef>(null)
   const [level, setLevel] = useState<IOption>()

@@ -34,8 +34,6 @@ interface Props {
   onFinishGame: (val: boolean) => void
 }
 
-const id = 'absolute-id'
-
 const Transition = forwardRef<
   unknown,
   TransitionProps & { children: ReactElement }
@@ -176,7 +174,6 @@ const Grid = React.memo(
     // Save the game
     const handleSaveGame = async () => {
       const dto = {
-        id: id,
         gameGrid: JSON.stringify(game),
         connectedSequences: JSON.stringify(gameSequences),
       }
@@ -208,6 +205,7 @@ const Grid = React.memo(
     }
     return (
       <>
+        {/* Todo: prevent click off */}
         <Dialog
           open={open}
           TransitionComponent={Transition}

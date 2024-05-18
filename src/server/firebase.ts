@@ -3,7 +3,6 @@ import { getFirestore, addDoc, getDocs, collection } from '@firebase/firestore'
 import { doc, deleteDoc } from 'firebase/firestore'
 
 interface Game {
-  id: string
   gameGrid: string
   connectedSequences: string
 }
@@ -39,7 +38,6 @@ export const getGame = async () => {
 
 export const addGame = async (game: Game) => {
   await addDoc(fireStoreRef, {
-    id: game.id,
     gameGrid: game.gameGrid,
     connectedSequences: game.connectedSequences,
   })
