@@ -49,7 +49,7 @@ const MainPage = () => {
         {level?.rows &&
           level.rows > 0 &&
           level.cols &&
-          level.cols !== 0 &&
+          level.cols > 0 &&
           isInGame && (
             <>
               <Grid

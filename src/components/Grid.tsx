@@ -113,6 +113,7 @@ const Grid = React.memo(
             if (updatedGameSequences.length === 0) {
               setHasWon(true)
               onFinishGame(true)
+              handleDeleteGame()
             }
 
             return
