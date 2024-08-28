@@ -84,7 +84,7 @@ const Grid = React.memo(
     }
 
     const checkWin = (balloon: { x: number; y: number }) => {
-      let updatedGame = [...game]
+      const updatedGame = [...game]
       let updatedGameSequences = [...gameSequences]
 
       for (let i = 0; i < gameSequences.length; i++) {
@@ -135,7 +135,8 @@ const Grid = React.memo(
       queryKey: ['game'],
       queryFn: () =>
         getGame().then((res) => {
-          if (res.length > 0) setOpen(true)
+          console.log(res)
+          if (res && res.length > 0) setOpen(true)
           return res
         }),
     })
@@ -162,7 +163,9 @@ const Grid = React.memo(
       return <span className='api-notification'>Loading...</span>
     }
     if (isError) {
-      return <span className='api-notification'>Some went wrong...</span>
+      return (
+        <span className='api-notification'>Some went wrong...{isError}</span>
+      )
     }
 
     // Delete the game
@@ -186,8 +189,7 @@ const Grid = React.memo(
         mutationSaveGame.mutate(dto)
       } catch (e) {
         console.log(e)
-      } finally {
-      }
+      } 
     }
 
     const handleRenew = () => {

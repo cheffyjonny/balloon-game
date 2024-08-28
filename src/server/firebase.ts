@@ -17,13 +17,29 @@ const firebaseConfig = {
   measurementId: 'G-75V5GD9JRS',
 }
 
-// Initialize Firebase
+// Init Firebase App
 const app = initializeApp(firebaseConfig)
-export const fireStore = getFirestore(app)
+
+// Init Services
+const fireStore = getFirestore(app)
+
+// Collection Ref
 const fireStoreRef = collection(fireStore, 'game')
+
+getDocs(fireStoreRef)
+  .then((snapshot) => {
+    console.log(snapshot.docs)
+  })
+  .catch((error) => {
+    console.error('Error fetching documents: ', error.message)
+  })
 
 export const getGame = async () => {
   const querySnapshot = await getDocs(fireStoreRef)
+
+  if (!querySnapshot || querySnapshot.empty) {
+    return null // Return null if querySnapshot is null or empty
+  }
 
   const game = querySnapshot.docs.map((doc) => {
     return {

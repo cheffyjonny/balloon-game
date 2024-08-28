@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 import GameOption from '@/components/gameOption/GameOption'
 import Grid, { GridRef } from '@/components/Grid'
